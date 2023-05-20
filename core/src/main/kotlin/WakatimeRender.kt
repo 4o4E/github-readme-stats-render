@@ -130,8 +130,8 @@ object WakatimeRender {
         LAST_7_DAYS("last_7_days", "last 7 days", "(?i)7d"),
         LAST_30_DAYS("last_30_days", "last 30 days", "(?i)30d"),
         LAST_6_MONTHS("last_6_months", "last 6 months", "(?i)6m"),
-        LAST_YEAR("last_year", "last year", "(?i)year|y"),
-        ALL_TIME("all_time", "all time", "(?i)all|y");
+        LAST_YEAR("last_year", "last year", "(?i)year|1?y"),
+        ALL_TIME("all_time", "all time", "(?i)all|a");
 
         val regex = Regex(regex)
 
