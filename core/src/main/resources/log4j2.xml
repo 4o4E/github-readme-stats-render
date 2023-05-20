@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+
+    <Appenders>
+        <Console name="console">
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="%highlight{[%d{HH:mm:ss}/%-5level] %m%n}{ERROR=RED, WARN=Yellow, INFO=Green, DEBUG=Cyan, TRACE=White}"/>
+        </Console>
+
+        <RollingRandomAccessFile name="file" fileName="latest.log" filePattern="logs/%d{yyyy.MM.dd}-%i.log.gz">
+            <PatternLayout pattern="[%d{HH:mm:ss.SSS}] [%logger/%-5level] %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <OnStartupTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="50MB"/>
+            </Policies>
+            <!-- 同目录下文件上限 -->
+            <DefaultRolloverStrategy max="50"/>
+        </RollingRandomAccessFile>
+    </Appenders>
+
+    <Loggers>
+        <Root level="ALL">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file"/>
+        </Root>
+    </Loggers>
+</Configuration>
