@@ -35,9 +35,17 @@ class CommonTest {
     }
 
     @Test
-    fun testRender() {
+    fun testRenderLang() {
         runBlocking(Dispatchers.IO) {
             val render = WakatimeRender.renderLang("404E", WakatimeRender.FetchRange.LAST_30_DAYS, false, Theme.default)
+            File("out.png").writeBytes(render)
+        }
+    }
+
+    @Test
+    fun testRenderEditor() {
+        runBlocking(Dispatchers.IO) {
+            val render = WakatimeRender.renderEditor("404E", WakatimeRender.FetchRange.LAST_6_MONTHS, Theme.default)
             File("out.png").writeBytes(render)
         }
     }
