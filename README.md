@@ -2,6 +2,8 @@
 
 用于生成[github-readme-status](https://github.com/anuraghazra/github-readme-stats)卡片的渲染图
 
+[![Release](https://img.shields.io/github/v/release/4o4E/github-readme-stats-render?label=Release)](https://github.com/4o4E/github-readme-stats-render/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/4o4E/github-readme-stats-render/total?label=Download)](https://github.com/4o4E/github-readme-stats-render/releases)
 ## http服务
 
 `http-server`模块供了一个简单的http server用于根据需求生成皮肤渲染图
