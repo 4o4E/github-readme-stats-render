@@ -14,7 +14,8 @@ data class ServerConfig(
     val host: String = "localhost",
     val port: Int = 2345,
     @SerialName("proxy") override val proxyConfig: ProxyConfig? = null,
-    @SerialName("waka_token") override val token: String,
+    @SerialName("waka_token") override val wakaToken: String,
+    @SerialName("github_token") override val githubToken: String,
     override val layout: Layout,
     override val themes: Map<String, Theme>
 ): IConfig {
@@ -36,16 +37,17 @@ data class ServerConfig(
         lateinit var config: ServerConfig
             private set
 
-        fun saveDefault(): ByteArray? {
+        fun saveDefault(): String? {
             if (file.exists()) return null
             return this::class.java.classLoader
                 .getResourceAsStream("config.yml")!!
-                .use { it.readBytes() }
-                .also { file.writeBytes(it) }
+                .bufferedReader()
+                .use { it.readText() }
+                .also { file.writeText(it) }
         }
 
         fun load() {
-            val yaml = String(saveDefault() ?: file.readBytes(), Charsets.UTF_8)
+            val yaml = saveDefault() ?: file.readText()
             config = Yaml.default.decodeFromString(yaml)
         }
     }

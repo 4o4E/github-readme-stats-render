@@ -14,56 +14,7 @@
 2. 从[release](https://github.com/4o4E/github-readme-stats-render/releases/latest)下载对应操作系统的jar文件
 3. 在控制台中使用`java -jar http-server-${plateform}.jar`启动服务
 
-### 示例配置文件
-
-```yaml
-# http 服务的地址
-host: localhost
-# http 服务的端口
-port: 2345
-# 设置为null不走代理
-proxy:
-  type: socket # socket/http
-  host: localhost
-  port: 7890
-# wakatime的api token, 在 https://wakatime.com/settings/account 获取
-waka_token: waka_xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-# 布局设置, 使用到的字体请自行放入对应的文件夹, JetBrainsMono可在 https://www.jetbrains.com/lp/mono/ 下载
-layout:
-  # 标题
-  title_font: font/JetBrainsMono-Bold.ttf
-  title_size: 26
-  # 语言名字
-  lang_font: font/JetBrainsMono-Bold.ttf
-  lang_size: 20
-  # 语言时长
-  text_font: font/JetBrainsMono-Medium.ttf
-  text_size: 20
-
-  # 背景圆角
-  bg_radii: 4.5
-  # 描边圆角
-  stroke_radii: 4.5
-
-  # 外边距
-  margin: 25
-  # 上下间距
-  spacing: 30
-  # 占比矩形左右边距
-  bar_padding: 10
-  # 占比矩形高度
-  bar_height: 10
-  # 占比矩形宽度
-  bar_width: 280
-# 主题
-themes:
-  default_repocard:
-    title_color: "ff2f80ed"
-    icon_color: "ff586069"
-    text_color: "ff434d58"
-    bg_color: "fffffefe"
-  # 其他主题...
-```
+[示例配置文件](http-server-linux/config.template.yml)
 
 ### api接口
 

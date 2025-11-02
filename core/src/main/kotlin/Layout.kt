@@ -3,8 +3,7 @@ package top.e404.status.render
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.skia.Data
-import org.jetbrains.skia.Font
-import org.jetbrains.skia.Typeface
+import org.jetbrains.skia.FontMgr
 import java.io.File
 
 @Serializable
@@ -21,25 +20,15 @@ data class Layout(
     val spacing: Float = 30F,
     @SerialName("bar_padding") val barPadding: Float = 10F,
     @SerialName("bar_height") val barHeight: Float = 10F,
-    @SerialName("bar_width") val barWidth: Float = 280F,
-
-    ) {
+    @SerialName("bar_width") val barWidth: Float = 280F
+) {
     val titleTypeface by lazy {
-        Typeface.makeFromData(Data.makeFromBytes(File(titleFontFile).readBytes()))
-    }
-    val titleFont by lazy {
-        Font(titleTypeface, titleSize)
+        FontMgr.default.makeFromData(Data.makeFromBytes(File(titleFontFile).readBytes()))!!
     }
     val langTypeface by lazy {
-        Typeface.makeFromData(Data.makeFromBytes(File(langFontFile).readBytes()))
-    }
-    val langFont by lazy {
-        Font(langTypeface, langSize)
+        FontMgr.default.makeFromData(Data.makeFromBytes(File(langFontFile).readBytes()))!!
     }
     val textTypeface by lazy {
-        Typeface.makeFromData(Data.makeFromBytes(File(textFontFile).readBytes()))
-    }
-    val textFont by lazy {
-        Font(textTypeface, textSize)
+        FontMgr.default.makeFromData(Data.makeFromBytes(File(textFontFile).readBytes()))!!
     }
 }

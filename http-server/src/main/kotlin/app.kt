@@ -2,7 +2,6 @@
 
 package top.e404.status.render
 
-import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import kotlinx.coroutines.Dispatchers
@@ -11,6 +10,9 @@ import org.slf4j.LoggerFactory
 import sun.misc.Signal
 import sun.misc.SignalHandler
 import top.e404.status.render.config.ServerConfig
+import top.e404.status.render.platform.GithubRender
+import top.e404.status.render.platform.WakatimeRender
+import top.e404.status.render.plugin.compression
 import top.e404.status.render.plugin.logging
 import top.e404.status.render.plugin.negotiation
 import top.e404.status.render.plugin.routing
@@ -32,7 +34,7 @@ suspend fun main() {
             channel = FileOutputStream(".lock").channel
             lock = channel.tryLock()
         }
-    } catch (t: Throwable) {
+    } catch (_: Throwable) {
         appLog.error("请勿打开多个实例")
         exitProcess(1)
     }
@@ -45,24 +47,23 @@ suspend fun main() {
     }
 
     ServerConfig.load()
-    WakatimeRender.config = ServerConfig.config
+    val wakatimeRender = WakatimeRender(ServerConfig.config)
+    val githubRender = GithubRender(ServerConfig.config)
 
     engine = embeddedServer(
         factory = Netty,
         host = ServerConfig.config.host,
-        port = ServerConfig.config.port,
-        module = Application::module
-    )
+        port = ServerConfig.config.port
+    ) {
+        logging()
+        routing(wakatimeRender, githubRender)
+        negotiation()
+        compression()
+    }
     engine.start(true)
 }
 
 private fun stop() {
     appLog.info("正在关闭")
     engine.stop()
-}
-
-fun Application.module() {
-    logging()
-    routing()
-    negotiation()
 }

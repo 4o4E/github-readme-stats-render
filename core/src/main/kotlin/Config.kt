@@ -9,11 +9,16 @@ import java.net.Proxy
 
 interface IConfig {
     val proxyConfig: ProxyConfig?
-    val token: String
+    val wakaToken: String
+    val githubToken: String
     val layout: Layout
     val themes: Map<String, Theme>
 
     val client: HttpClient
+
+    companion object {
+        lateinit var default: IConfig
+    }
 }
 
 @Serializable
@@ -22,7 +27,9 @@ open class Config : IConfig {
     override val proxyConfig: ProxyConfig? = null
 
     @SerialName("waka_token")
-    override val token: String = "waka_xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    override val wakaToken: String = "waka_xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    @SerialName("github_token")
+    override val githubToken: String = "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     override val layout: Layout = Layout()
     override val themes: Map<String, Theme> = emptyMap()
 

@@ -1,26 +1,78 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    kotlin("jvm") version Versions.kotlin
-    kotlin("plugin.serialization") version Versions.kotlin apply false
+    kotlin("jvm") version Versions.KOTLIN
+    kotlin("plugin.serialization") version Versions.KOTLIN apply false
+    id("com.github.johnrengelman.shadow") version "7.1.2"
+    application
+}
+
+kotlin {
+    jvmToolchain(11)
 }
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
-    group = Versions.group
-    version = Versions.version
+    apply(plugin = "org.gradle.application")
+    apply(plugin = "com.github.johnrengelman.shadow")
+
+    group = Versions.GROUP
+    version = Versions.VERSION
 
     repositories {
         mavenCentral()
+        maven("https://nexus.e404.top:3443/repository/maven-snapshots/")
+    }
+
+    dependencies {
+        if (!name.startsWith("http-server-")) return@dependencies
+        val os = name.removePrefix("http-server-")
+        implementation(project(":http-server")) {
+            exclude("org.jetbrains.skiko")
+        }
+
+        // skiko
+        implementation(skiko(
+            when (os) {
+                "mac" -> "macos-x64"
+                "win" -> "windows-x64"
+                else -> "linux-x64"
+            }
+        ))
+    }
+
+    application {
+        mainClass.set("top.e404.status.render.App")
+        applicationDefaultJvmArgs = listOf(
+            "-Dio.netty.tryReflectionSetAccessible=true",
+            "--add-opens",
+            "java.base/jdk.internal.misc=ALL-UNNAMED",
+            "--add-opens",
+            "java.base/java.util=ALL-UNNAMED"
+        )
     }
 
     tasks {
-        withType<KotlinCompile> {
-            kotlinOptions.jvmTarget = "11"
+        runShadow {
+            workingDir = rootDir.resolve("run")
+            doFirst {
+                if (workingDir.isFile) workingDir.delete()
+                workingDir.mkdirs()
+            }
         }
-    }
 
-    kotlin {
-        jvmToolchain(11)
+        shadowJar {
+            archiveFileName.set("${project.name}.jar")
+        }
+
+        build {
+            if (project.name.startsWith("http-server-")) {
+                dependsOn(shadowJar)
+            }
+        }
+
+        test {
+            useJUnitPlatform()
+            workingDir = rootProject.projectDir.resolve("run")
+            workingDir.mkdir()
+        }
     }
 }

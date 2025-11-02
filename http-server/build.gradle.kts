@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm")
+    kotlin("plugin.serialization")
     id("com.github.johnrengelman.shadow") version "7.1.2"
     application
 }
@@ -16,12 +17,21 @@ application {
 }
 
 dependencies {
-    implementation(project(":http-server-win")) {
-        exclude("org.jetbrains.skiko")
-    }
+    implementation(project(":core"))
+    // ktor
+    implementation(ktor("server-core"))
+    implementation(ktor("server-netty"))
 
-    // skiko
-    implementation(skiko("macos-x64"))
+    implementation(ktor("server-call-logging"))
+    implementation(ktor("server-compression"))
+    implementation(ktor("server-content-negotiation"))
+    implementation(ktor("serialization-kotlinx-json"))
+
+    // serialization
+    implementation(kotlinx("serialization-core-jvm", "1.5.0"))
+    implementation(kotlinx("serialization-json", "1.5.0"))
+    // kaml
+    implementation(kaml)
 }
 
 tasks {
@@ -43,7 +53,7 @@ tasks {
         val jar = project.rootDir.resolve("jar")
         doLast {
             jar.mkdir()
-            project.buildDir
+            project.layout.buildDirectory.get().asFile
                 .resolve("libs/${project.name}.jar")
                 .copyTo(jar.resolve("${project.name}.jar"), true)
         }

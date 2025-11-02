@@ -1,0 +1,458 @@
+# http 服务的地址
+host: {SERVER_HOST}
+# http 服务的端口
+port: {SERVER_PORT}
+# 设置为null不走代理
+proxy:
+  type: {PROXY_TYPE} # socket/http
+  host: {PROXY_HOST}
+  port: {PROXY_PORT}
+# wakatime token, 在 https://wakatime.com/settings/account 获取
+waka_token: {WAKA_TOKEN}
+# github token, 在 https://github.com/settings/tokens 获取
+github_token: {GITHUB_TOKEN}
+# 布局设置, 使用到的字体请自行放入对应的文件夹, JetBrainsMono可在 https://www.jetbrains.com/lp/mono/ 下载
+layout:
+  # 标题
+  title_font: font/JetBrainsMono-Bold.ttf
+  title_size: 26
+  # 语言名字
+  lang_font: font/JetBrainsMono-Bold.ttf
+  lang_size: 20
+  # 语言时长
+  text_font: font/JetBrainsMono-Medium.ttf
+  text_size: 20
+
+  # 背景圆角
+  bg_radii: 4.5
+  # 描边圆角
+  stroke_radii: 4.5
+
+  # 外边距
+  margin: 25
+  # 上下间距
+  spacing: 30
+  # 占比矩形左右边距
+  bar_padding: 10
+  # 占比矩形高度
+  bar_height: 10
+  # 占比矩形宽度
+  bar_width: 280
+# 主题
+themes:
+  default_repocard:
+    title_color: "ff2f80ed"
+    icon_color: "ff586069"
+    text_color: "ff434d58"
+    bg_color: "fffffefe"
+
+  transparent:
+    title_color: "ff006AFF"
+    icon_color: "ff0579C3"
+    text_color: "ff417E87"
+    bg_color: "00ffffff"
+
+  shadow_red:
+    title_color: "ff9A0000"
+    text_color: "ff444444"
+    icon_color: "ff4F0000"
+    border_color: "ff4F0000"
+    bg_color: "00ffffff"
+
+  shadow_green:
+    title_color: "ff007A00"
+    text_color: "ff444444"
+    icon_color: "ff003D00"
+    border_color: "ff003D00"
+    bg_color: "00ffffff"
+
+  shadow_blue:
+    title_color: "ff00779A"
+    text_color: "ff444444"
+    icon_color: "ff004450"
+    border_color: "ff004490"
+    bg_color: "00ffffff"
+
+  dark:
+    title_color: "ffffffff"
+    icon_color: "ff79ff97"
+    text_color: "ff9f9f9f"
+    bg_color: "ff151515"
+
+  radical:
+    title_color: "fffe428e"
+    icon_color: "fff8d847"
+    text_color: "ffa9fef7"
+    bg_color: "ff141321"
+
+  merko:
+    title_color: "ffabd200"
+    icon_color: "ffb7d364"
+    text_color: "ff68b587"
+    bg_color: "ff0a0f0b"
+
+  gruvbox:
+    title_color: "fffabd2f"
+    icon_color: "fffe8019"
+    text_color: "ff8ec07c"
+    bg_color: "ff282828"
+
+  gruvbox_light:
+    title_color: "ffb57614"
+    icon_color: "ffaf3a03"
+    text_color: "ff427b58"
+    bg_color: "fffbf1c7"
+
+  tokyonight:
+    title_color: "ff70a5fd"
+    icon_color: "ffbf91f3"
+    text_color: "ff38bdae"
+    bg_color: "ff1a1b27"
+
+  onedark:
+    title_color: "ffe4bf7a"
+    icon_color: "ff8eb573"
+    text_color: "ffdf6d74"
+    bg_color: "ff282c34"
+
+  cobalt:
+    title_color: "ffe683d9"
+    icon_color: "ff0480ef"
+    text_color: "ff75eeb2"
+    bg_color: "ff193549"
+
+  synthwave:
+    title_color: "ffe2e9ec"
+    icon_color: "ffef8539"
+    text_color: "ffe5289e"
+    bg_color: "ff2b213a"
+
+  highcontrast:
+    title_color: "ffe7f216"
+    icon_color: "ff00ffff"
+    text_color: "ffffffff"
+    bg_color: "ff000000"
+
+  dracula:
+    title_color: "ffff6e96"
+    icon_color: "ff79dafa"
+    text_color: "fff8f8f2"
+    bg_color: "ff282a36"
+
+  prussian:
+    title_color: "ffbddfff"
+    icon_color: "ff38a0ff"
+    text_color: "ff6e93b5"
+    bg_color: "ff172f45"
+
+  monokai:
+    title_color: "ffeb1f6a"
+    icon_color: "ffe28905"
+    text_color: "fff1f1eb"
+    bg_color: "ff272822"
+
+  vue:
+    title_color: "ff41b883"
+    icon_color: "ff41b883"
+    text_color: "ff273849"
+    bg_color: "fffffefe"
+
+  "vue-dark":
+    title_color: "ff41b883"
+    icon_color: "ff41b883"
+    text_color: "fffffefe"
+    bg_color: "ff273849"
+
+  "shades-of-purple":
+    title_color: "fffad000"
+    icon_color: "ffb362ff"
+    text_color: "ffa599e9"
+    bg_color: "ff2d2b55"
+
+  nightowl:
+    title_color: "ffc792ea"
+    icon_color: "ffffeb95"
+    text_color: "ff7fdbca"
+    bg_color: "ff011627"
+
+  buefy:
+    title_color: "ff7957d5"
+    icon_color: "ffff3860"
+    text_color: "ff363636"
+    bg_color: "ffffffff"
+
+  "blue-green":
+    title_color: "ff2f97c1"
+    icon_color: "fff5b700"
+    text_color: "ff0cf574"
+    bg_color: "ff040f0f"
+
+  algolia:
+    title_color: "ff00AEFF"
+    icon_color: "ff2DDE98"
+    text_color: "ffFFFFFF"
+    bg_color: "ff050F2C"
+
+  "great-gatsby":
+    title_color: "ffffa726"
+    icon_color: "ffffb74d"
+    text_color: "ffffd95b"
+    bg_color: "ff000000"
+
+  darcula:
+    title_color: "ffBA5F17"
+    icon_color: "ff84628F"
+    text_color: "ffBEBEBE"
+    bg_color: "ff242424"
+
+  bear:
+    title_color: "ffe03c8a"
+    icon_color: "ff00AEFF"
+    text_color: "ffbcb28d"
+    bg_color: "ff1f2023"
+
+  "solarized-dark":
+    title_color: "ff268bd2"
+    icon_color: "ffb58900"
+    text_color: "ff859900"
+    bg_color: "ff002b36"
+
+  "solarized-light":
+    title_color: "ff268bd2"
+    icon_color: "ffb58900"
+    text_color: "ff859900"
+    bg_color: "fffdf6e3"
+
+  "chartreuse-dark":
+    title_color: "ff7fff00"
+    icon_color: "ff00AEFF"
+    text_color: "ffffffff"
+    bg_color: "ff000000"
+
+  nord:
+    title_color: "ff81a1c1"
+    text_color: "ffd8dee9"
+    icon_color: "ff88c0d0"
+    bg_color: "ff2e3440"
+
+  gotham:
+    title_color: "ff2aa889"
+    icon_color: "ff599cab"
+    text_color: "ff99d1ce"
+    bg_color: "ff0c1014"
+
+  "material-palenight":
+    title_color: "ffc792ea"
+    icon_color: "ff89ddff"
+    text_color: "ffa6accd"
+    bg_color: "ff292d3e"
+
+  graywhite:
+    title_color: "ff24292e"
+    icon_color: "ff24292e"
+    text_color: "ff24292e"
+    bg_color: "ffffffff"
+
+  "vision-friendly-dark":
+    title_color: "ffffb000"
+    icon_color: "ff785ef0"
+    text_color: "ffffffff"
+    bg_color: "ff000000"
+
+  "ayu-mirage":
+    title_color: "fff4cd7c"
+    icon_color: "ff73d0ff"
+    text_color: "ffc7c8c2"
+    bg_color: "ff1f2430"
+
+  "midnight-purple":
+    title_color: "ff9745f5"
+    icon_color: "ff9f4bff"
+    text_color: "ffffffff"
+    bg_color: "ff000000"
+
+  calm:
+    title_color: "ffe07a5f"
+    icon_color: "ffedae49"
+    text_color: "ffebcfb2"
+    bg_color: "ff373f51"
+
+  "flag-india":
+    title_color: "ffff8f1c"
+    icon_color: "ff250E62"
+    text_color: "ff509E2F"
+    bg_color: "ffffffff"
+
+  omni:
+    title_color: "ffFF79C6"
+    icon_color: "ffe7de79"
+    text_color: "ffE1E1E6"
+    bg_color: "ff191622"
+
+  react:
+    title_color: "ff61dafb"
+    icon_color: "ff61dafb"
+    text_color: "ffffffff"
+    bg_color: "ff20232a"
+
+  jolly:
+    title_color: "ffff64da"
+    icon_color: "ffa960ff"
+    text_color: "ffffffff"
+    bg_color: "ff291B3E"
+
+  maroongold:
+    title_color: "ffF7EF8A"
+    icon_color: "ffF7EF8A"
+    text_color: "ffE0AA3E"
+    bg_color: "ff260000"
+
+  yeblu:
+    title_color: "ffffff00"
+    icon_color: "ffffff00"
+    text_color: "ffffffff"
+    bg_color: "ff002046"
+
+  blueberry:
+    title_color: "ff82aaff"
+    icon_color: "ff89ddff"
+    text_color: "ff27e8a7"
+    bg_color: "ff242938"
+
+  slateorange:
+    title_color: "fffaa627"
+    icon_color: "fffaa627"
+    text_color: "ffffffff"
+    bg_color: "ff36393f"
+
+  kacho_ga:
+    title_color: "ffbf4a3f"
+    icon_color: "ffa64833"
+    text_color: "ffd9c8a9"
+    bg_color: "ff402b23"
+
+  outrun:
+    title_color: "ffffcc00"
+    icon_color: "ffff1aff"
+    text_color: "ff8080ff"
+    bg_color: "ff141439"
+
+  ocean_dark:
+    title_color: "ff8957B2"
+    icon_color: "ffFFFFFF"
+    text_color: "ff92D534"
+    bg_color: "ff151A28"
+
+  city_lights:
+    title_color: "ff5D8CB3"
+    icon_color: "ff4798FF"
+    text_color: "ff718CA1"
+    bg_color: "ff1D252C"
+
+  github_dark:
+    title_color: "ff58A6FF"
+    icon_color: "ff1F6FEB"
+    text_color: "ffC3D1D9"
+    bg_color: "ff0D1117"
+
+  github_dark_dimmed:
+    title_color: "ff539bf5"
+    icon_color: "ff539bf5"
+    text_color: "ffADBAC7"
+    bg_color: "ff24292F"
+    border_color: "ff373E47"
+
+  discord_old_blurple:
+    title_color: "ff7289DA"
+    icon_color: "ff7289DA"
+    text_color: "ffFFFFFF"
+    bg_color: "ff2C2F33"
+
+  aura_dark:
+    title_color: "ffff7372"
+    icon_color: "ff6cffd0"
+    text_color: "ffdbdbdb"
+    bg_color: "ff252334"
+
+  panda:
+    title_color: "9919f9d8"
+    icon_color: "9919f9d8"
+    text_color: "ffFF75B5"
+    bg_color: "ff31353a"
+
+  noctis_minimus:
+    title_color: "ffd3b692"
+    icon_color: "ff72b7c0"
+    text_color: "ffc5cdd3"
+    bg_color: "ff1b2932"
+
+  cobalt2:
+    title_color: "ffffc600"
+    icon_color: "ffffffff"
+    text_color: "ff0088ff"
+    bg_color: "ff193549"
+
+  swift:
+    title_color: "ff000000"
+    icon_color: "fff05237"
+    text_color: "ff000000"
+    bg_color: "fff7f7f7"
+
+  aura:
+    title_color: "ffa277ff"
+    icon_color: "ffffca85"
+    text_color: "ff61ffca"
+    bg_color: "ff15141b"
+
+  apprentice:
+    title_color: "ffffffff"
+    icon_color: "ffffffaf"
+    text_color: "ffbcbcbc"
+    bg_color: "ff262626"
+
+  moltack:
+    title_color: "ff86092C"
+    icon_color: "ff86092C"
+    text_color: "ff574038"
+    bg_color: "ffF5E1C0"
+
+  codeSTACKr:
+    title_color: "ffff652f"
+    icon_color: "ffFFE400"
+    text_color: "ffffffff"
+    bg_color: "ff09131B"
+    border_color: "ff0c1a25"
+
+  rose_pine:
+    title_color: "ff9ccfd8"
+    icon_color: "ffebbcba"
+    text_color: "ffe0def4"
+    bg_color: "ff191724"
+
+  date_night:
+    title_color: "ffDA7885"
+    text_color: "ffE1B2A2"
+    icon_color: "ffBB8470"
+    border_color: "ff170F0C"
+    bg_color: "ff170F0C"
+
+  one_dark_pro:
+    title_color: "ff61AFEF"
+    text_color: "ffE5C06E"
+    icon_color: "ffC678DD"
+    border_color: "ff3B4048"
+    bg_color: "ff23272E"
+
+  rose:
+    title_color: "ff8d192b"
+    text_color: "ff862931"
+    icon_color: "ffB71F36"
+    border_color: "ffe9d8d4"
+    bg_color: "ffe9d8d4"
+
+  holi:
+    title_color: "ff5FABEE"
+    text_color: "ffD6E7FF"
+    icon_color: "ff5FABEE"
+    border_color: "ff85A4C0"
+    bg_color: "ff030314"
