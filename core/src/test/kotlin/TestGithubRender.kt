@@ -15,13 +15,16 @@ import kotlin.test.Test
 
 class TestGithubRender {
     companion object {
+        lateinit var config: Config
         lateinit var githubRender: GithubRender
+        lateinit var defaultTheme: Theme
         @BeforeAll
         @JvmStatic
         fun load() {
-            val config = Yaml(configuration = YamlConfiguration(strictMode = false))
+            config = Yaml(configuration = YamlConfiguration(strictMode = false))
                 .decodeFromString<Config>(File("config.yml").readText())
             githubRender = GithubRender(config)
+            defaultTheme = config.themes["tokyonight"]!!
         }
     }
 
@@ -31,7 +34,7 @@ class TestGithubRender {
             val bytes = githubRender.renderCommit(
                 "4o4E",
                 LocalDateTime.now(),
-                Theme.default
+                defaultTheme
             )
             File("github_commit.png").writeBytes(bytes)
         }

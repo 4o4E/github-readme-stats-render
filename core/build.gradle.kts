@@ -23,7 +23,7 @@ dependencies {
 
     // skiko
     implementation(skiko("windows-x64"))
-    implementation("top.e404.skiko-util:skiko-util-draw:1.5.0-SNAPSHOT")
+    implementation("top.e404.skiko-util:skiko-util-draw:1.6.3-SNAPSHOT")
 
     // test
     testImplementation(kotlin("test", Versions.KOTLIN))

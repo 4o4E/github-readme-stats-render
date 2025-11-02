@@ -148,7 +148,12 @@ class GithubRender(val config: IConfig) {
         }
 
         return render {
-            column(Modifier.background(theme.bgColor).padding(20f)) {
+            column(Modifier
+                .padding(20f)
+                .background(theme.bgColor)
+                .clip(Shape.RoundedRect(layout.bgRadii))
+                .border(.5f, theme.bolderColor)
+            ) {
                 text(
                     "$username's GitHub Commit from ${end.toLocalDate()} to ${end.minusYears(1).toLocalDate()}",
                     Modifier.textColor(theme.titleColor).fontFamily(layout.titleTypeface).fontSize(layout.titleSize)

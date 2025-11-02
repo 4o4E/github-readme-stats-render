@@ -60,10 +60,10 @@ class WakatimeRender(val config: IConfig) {
     }
 
     private fun renderStats(title: String, statsList: List<StatsItem>, theme: Theme) = render {
-        column(modifier = Modifier.padding(5f)
+        column(modifier = Modifier.padding(25f)
             .background(theme.bgColor)
             .clip(Shape.RoundedRect(layout.bgRadii))
-            .border(1f, theme.bolderColor)
+            .border(.5f, theme.bolderColor)
         ) {
             text(
                 title,

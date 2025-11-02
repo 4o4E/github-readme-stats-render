@@ -14,20 +14,23 @@ import kotlin.test.Test
 
 class TestWakaRender {
     companion object {
+        lateinit var config: Config
         lateinit var wakatimeRender: WakatimeRender
+        lateinit var defaultTheme: Theme
         @BeforeAll
         @JvmStatic
         fun load() {
-            val config = Yaml(configuration = YamlConfiguration(strictMode = false))
+            config = Yaml(configuration = YamlConfiguration(strictMode = false))
                 .decodeFromString<Config>(File("config.yml").readText())
             wakatimeRender = WakatimeRender(config)
+            defaultTheme = config.themes["tokyonight"]!!
         }
     }
 
     @Test
     fun testRenderLang() {
         runBlocking(Dispatchers.IO) {
-            val bytes = wakatimeRender.renderLang("404E", WakatimeRender.FetchRange.LAST_6_MONTHS, false, Theme.default)
+            val bytes = wakatimeRender.renderLang("404E", WakatimeRender.FetchRange.LAST_6_MONTHS, false, defaultTheme)
             File("waka_lang.png").writeBytes(bytes)
         }
     }
@@ -35,7 +38,7 @@ class TestWakaRender {
     @Test
     fun testRenderEditor() {
         runBlocking(Dispatchers.IO) {
-            val bytes = wakatimeRender.renderEditor("404E", WakatimeRender.FetchRange.LAST_6_MONTHS, Theme.default)
+            val bytes = wakatimeRender.renderEditor("404E", WakatimeRender.FetchRange.LAST_6_MONTHS, defaultTheme)
             File("waka_editor.png").writeBytes(bytes)
         }
     }
