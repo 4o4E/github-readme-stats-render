@@ -155,7 +155,7 @@ class GithubRender(val config: IConfig) {
                 .border(.5f, theme.bolderColor)
             ) {
                 text(
-                    "$username's GitHub Commit from ${end.toLocalDate()} to ${end.minusYears(1).toLocalDate()}",
+                    "$username's GitHub Commit from ${end.minusYears(1).toLocalDate()} to ${end.toLocalDate()}",
                     Modifier.textColor(theme.titleColor).fontFamily(layout.titleTypeface).fontSize(layout.titleSize)
                 )
                 row(Modifier.margin(top = 20f)) {
