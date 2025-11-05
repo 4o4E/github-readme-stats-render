@@ -148,7 +148,11 @@ class GithubRender(val config: IConfig) {
                 }
                 box(boxModifier, HorizontalAlignment.Right, VerticalAlignment.Top) {
                     row(Modifier.margin(20f)) {
-                        text("$username / $start / $end", Modifier.textColor(Colors.GRAY.argb).fontSize(20f))
+                        text("$username / $start / $end", Modifier
+                            .textColor(Colors.GRAY.argb)
+                            .fontSize(20f)
+                            .fontFamily(config.github3d.font.normalTypeface)
+                        )
                     }
                 }
                 // 左下角饼图
