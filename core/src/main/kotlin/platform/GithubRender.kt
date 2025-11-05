@@ -159,14 +159,18 @@ class GithubRender(val config: IConfig) {
                 ) {
                     row(Modifier.margin(bottom = 150f, left = 60f), VerticalAlignment.Center) {
                         bar(
-                            BarTheme(120f, 60f, strokeColor = theme.background),
+                            BarTheme(120f, 60f, strokeColor = theme.background, strokeWidth = 3f),
                             languages.map { it.skikoColor to it.contributions.toFloat() }
                         )
                         column(Modifier.margin(left = 20f)) {
                             for (lang in languages) {
                                 row(Modifier.margin(5f), VerticalAlignment.Center) {
                                     box(Modifier.size(25f).margin(right = 10f).background(lang.skikoColor))
-                                    text(lang.language, Modifier.fontSize(25f).textColor(Color.WHITE))
+                                    text(lang.language, Modifier
+                                            .fontSize(25f)
+                                            .textColor(Color.WHITE)
+                                            .fontFamily(config.github3d.font.normalTypeface)
+                                    )
                                 }
                             }
                         }
@@ -193,7 +197,7 @@ class GithubRender(val config: IConfig) {
                             width = 600f,
                             height = 600f,
                             gridCount = 5,
-                            fillColor = 0x77ffc837.toInt(),
+                            fillColor = 0x77ffc837,
                             fillOutlinePaint = Paint().apply {
                                 color = 0xffffc837.toInt()
                                 strokeWidth = 5f
@@ -208,6 +212,7 @@ class GithubRender(val config: IConfig) {
                                 pathEffect = PathEffect.makeDash(floatArrayOf(5f, 5f), 0f)
                             },
                             gridFontColor = 0xFFCCCCCC.toInt(),
+                            gridFont = Font(config.github3d.font.normalTypeface, 18F),
                             gridFontProvider = {
                                 val v = 10.0.pow(it).toInt()
                                 if (v > 100) "${v / 1000}k"
@@ -215,7 +220,7 @@ class GithubRender(val config: IConfig) {
                             },
                             labelOuterLength = 40f,
                             labelFixPolicy = RadarFixPolicy.NONE,
-                            labelFont = Font(DefaultTypefaceProvider.default, 25f)
+                            labelFont = Font(config.github3d.font.normalTypeface, 25f)
                         )
                         radar(radarTheme, data)
                     }
