@@ -1,42 +1,33 @@
 package top.e404.status.render.test
 
-import com.charleskorn.kaml.Yaml
-import com.charleskorn.kaml.YamlConfiguration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.decodeFromString
-import org.junit.jupiter.api.BeforeAll
-import top.e404.status.render.Config
-import top.e404.status.render.Theme
-import top.e404.status.render.platform.GithubRender
 import java.io.File
 import java.time.LocalDateTime
 import kotlin.test.Test
 
 class TestGithubRender {
-    companion object {
-        lateinit var config: Config
-        lateinit var githubRender: GithubRender
-        lateinit var defaultTheme: Theme
-        @BeforeAll
-        @JvmStatic
-        fun load() {
-            config = Yaml(configuration = YamlConfiguration(strictMode = false))
-                .decodeFromString<Config>(File("config.yml").readText())
-            githubRender = GithubRender(config)
-            defaultTheme = config.themes["tokyonight"]!!
+
+    @Test
+    fun testRenderContribution2d() {
+        runBlocking(Dispatchers.IO) {
+            val bytes = TestConfig.githubRender.renderContribution2d(
+                "4o4E",
+                LocalDateTime.now(),
+                TestConfig.themes2d
+            )
+            File("github_contribution_2d.png").writeBytes(bytes)
         }
     }
 
     @Test
-    fun testRenderCommit() {
+    fun testRenderContribution3d() {
         runBlocking(Dispatchers.IO) {
-            val bytes = githubRender.renderCommit(
-                "4o4E",
-                LocalDateTime.now(),
-                defaultTheme
+            val bytes = TestConfig.githubRender.renderContribution3d(
+                "4o4e",
+                TestConfig.themes3d
             )
-            File("github_commit.png").writeBytes(bytes)
+            File("github_contribution_3d.png").writeBytes(bytes)
         }
     }
 }

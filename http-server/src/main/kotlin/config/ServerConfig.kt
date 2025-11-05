@@ -1,12 +1,16 @@
 package top.e404.status.render.config
 
+import com.charleskorn.kaml.PolymorphismStyle
 import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.YamlConfiguration
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import top.e404.status.render.*
+import top.e404.status.render.feature.Heatmap2dRender
+import top.e404.status.render.feature.Heatmap3dRender
 import java.io.File
 
 @Serializable
@@ -16,8 +20,11 @@ data class ServerConfig(
     @SerialName("proxy") override val proxyConfig: ProxyConfig? = null,
     @SerialName("waka_token") override val wakaToken: String,
     @SerialName("github_token") override val githubToken: String,
-    override val layout: Layout,
-    override val themes: Map<String, Theme>
+    override val layout2d: Heatmap2dRender.Layout,
+    override val themes2d: Map<String, Heatmap2dRender.Theme>,
+    override val layout3d: Heatmap3dRender.Layout,
+    override val themes3d: Map<String, Heatmap3dRender.Theme>,
+    override val github3d: Github3d,
 ): IConfig {
     override val client by lazy {
         HttpClient(OkHttp) {
@@ -33,6 +40,7 @@ data class ServerConfig(
     }
 
     companion object {
+        val yaml = Yaml(configuration = YamlConfiguration(strictMode = false, polymorphismStyle = PolymorphismStyle.Property))
         private val file = File("config.yml")
         lateinit var config: ServerConfig
             private set
@@ -47,8 +55,8 @@ data class ServerConfig(
         }
 
         fun load() {
-            val yaml = saveDefault() ?: file.readText()
-            config = Yaml.default.decodeFromString(yaml)
+            val text = saveDefault() ?: file.readText()
+            config = yaml.decodeFromString(text)
         }
     }
 }

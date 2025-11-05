@@ -5,40 +5,19 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.*
-import top.e404.skiko.draw.compose.HorizontalAlignment
-import top.e404.skiko.draw.compose.Modifier
-import top.e404.skiko.draw.compose.Shape
-import top.e404.skiko.draw.compose.UiDsl
-import top.e404.skiko.draw.compose.UiElement
-import top.e404.skiko.draw.compose.VerticalAlignment
-import top.e404.skiko.draw.compose.background
-import top.e404.skiko.draw.compose.border
-import top.e404.skiko.draw.compose.box
-import top.e404.skiko.draw.compose.cell
-import top.e404.skiko.draw.compose.clip
-import top.e404.skiko.draw.compose.column
-import top.e404.skiko.draw.compose.fontFamily
-import top.e404.skiko.draw.compose.fontSize
-import top.e404.skiko.draw.compose.height
-import top.e404.skiko.draw.compose.margin
-import top.e404.skiko.draw.compose.padding
-import top.e404.skiko.draw.compose.render
-import top.e404.skiko.draw.compose.table
-import top.e404.skiko.draw.compose.tableRow
-import top.e404.skiko.draw.compose.text
-import top.e404.skiko.draw.compose.textColor
-import top.e404.skiko.draw.compose.width
+import top.e404.skiko.draw.compose.*
+import top.e404.skiko.util.bytes
 import top.e404.status.render.IConfig
-import top.e404.status.render.Theme
+import top.e404.status.render.feature.Heatmap2dRender
 import kotlin.math.max
 
 class WakatimeRender(val config: IConfig) {
-    private val layout inline get() = config.layout
+    private val layout inline get() = config.layout2d
     private val barHeight inline get() = layout.barHeight
     private val barWidth inline get() = layout.barWidth
     private val client inline get() = config.client
 
-    suspend fun renderLang(user: String, range: FetchRange, allLang: Boolean, theme: Theme): ByteArray {
+    suspend fun renderLang(user: String, range: FetchRange, allLang: Boolean, theme: Heatmap2dRender.Theme): ByteArray {
         val stats = fetchUserStats(user, range)
         val statsList = stats["languages"]!!.jsonArray.map {
             StatsItem(it as JsonObject)
@@ -50,7 +29,7 @@ class WakatimeRender(val config: IConfig) {
         return renderStats("$user's wakatime stats in ${range.display}", statsList, theme)
     }
 
-    suspend fun renderEditor(user: String, range: FetchRange, theme: Theme): ByteArray {
+    suspend fun renderEditor(user: String, range: FetchRange, theme: Heatmap2dRender.Theme): ByteArray {
         val stats = fetchUserStats(user, range)
         val statsList = stats["editors"]!!.jsonArray.map {
             StatsItem(it as JsonObject)
@@ -59,11 +38,12 @@ class WakatimeRender(val config: IConfig) {
         return renderStats("$user's editor usage stats in ${range.display}", statsList, theme)
     }
 
-    private fun renderStats(title: String, statsList: List<StatsItem>, theme: Theme) = render {
-        column(modifier = Modifier.padding(25f)
-            .background(theme.bgColor)
-            .clip(Shape.RoundedRect(layout.bgRadii))
-            .border(.5f, theme.bolderColor)
+    private fun renderStats(title: String, statsList: List<StatsItem>, theme: Heatmap2dRender.Theme) = render {
+        column(
+            modifier = Modifier.padding(25f)
+                .background(theme.bgColor)
+                .clip(Shape.RoundedRect(layout.bgRadii))
+                .border(.5f, theme.bolderColor)
         ) {
             text(
                 title,
@@ -75,10 +55,10 @@ class WakatimeRender(val config: IConfig) {
             )
             statsList(statsList, theme)
         }
-    }.encodeToData()!!.bytes
+    }.bytes()
 
     @UiDsl
-    private fun UiElement.statsList(statsList: List<StatsItem>, theme: Theme) {
+    private fun UiElement.statsList(statsList: List<StatsItem>, theme: Heatmap2dRender.Theme) {
         table(columnSpacing = 10f, rowSpacing = 5f) {
             for (lang in statsList) {
                 tableRow {

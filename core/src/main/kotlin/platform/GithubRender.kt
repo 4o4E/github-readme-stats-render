@@ -1,87 +1,61 @@
 package top.e404.status.render.platform
 
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.*
 import org.jetbrains.skia.Color
+import org.jetbrains.skia.Font
+import org.jetbrains.skia.Paint
+import org.jetbrains.skia.PaintMode
+import org.jetbrains.skia.PathEffect
 import top.e404.skiko.draw.compose.*
-import top.e404.skiko.util.argb
+import top.e404.skiko.draw.compose.charts.BarTheme
+import top.e404.skiko.draw.compose.charts.RadarFixPolicy
+import top.e404.skiko.draw.compose.charts.RadarTheme
+import top.e404.skiko.draw.compose.charts.bar
+import top.e404.skiko.draw.compose.charts.radar
+import top.e404.skiko.util.Colors
+import top.e404.skiko.util.bytes
 import top.e404.status.render.IConfig
-import top.e404.status.render.Theme
+import top.e404.status.render.feature.Heatmap2dRender
+import top.e404.status.render.feature.Heatmap3dRender
+import top.e404.status.render.fetcher.GhUser
+import top.e404.status.render.fetcher.GithubFetcher
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import kotlin.math.log10
+import kotlin.math.pow
 
 class GithubRender(val config: IConfig) {
-    private companion object {
-        const val URL = "https://api.github.com/graphql"
-    }
-
-    private val layout inline get() = config.layout
-    private val client inline get() = config.client
-    private suspend fun fetchCommitCount(username: String, end: LocalDateTime): JsonObject {
-        val query = $$"""
-            query userContributions($username: String!, $from: DateTime!, $to: DateTime!) {
-                user(login: $username) {
-                    contributionsCollection(from: $from, to: $to) {
-                        contributionCalendar {
-                            weeks {
-                                contributionDays {
-                                    contributionCount
-                                    date
-                                }
-                            }
-                        }
-                    }
-                }
+    private val fetcher = GithubFetcher(config)
+    private suspend fun fetchDays(
+        username: String,
+        end: LocalDateTime
+    ): Pair<MutableList<Pair<LocalDate, Int?>>, GhUser> {
+        val commitInfo = fetcher.fetchCommitCount(username, end = end)
+        if (commitInfo.data.user == null) {
+            val errors = commitInfo.errors!!.joinToString("\n") {
+                it.message
             }
-        """.replace(Regex("\\s{2,}"), " ")
-        return client.post(URL) {
-            header("Authorization", "bearer ${config.githubToken}")
-            setBody(Json.encodeToString(buildJsonObject {
-                put("query", JsonPrimitive(query))
-                put("variables", buildJsonObject {
-                    put("username", username)
-                    put("from", end.minusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-                    put("to", end.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-                })
-            }))
-        }.bodyAsText().let { Json.parseToJsonElement(it) }.jsonObject
-    }
-
-    suspend fun renderCommit(username: String, end: LocalDateTime, theme: Theme): ByteArray {
-        val commitInfo = fetchCommitCount(username, end = end)
-        if (commitInfo["errors"]?.jsonArray?.isNotEmpty() == true) {
-            val errors = commitInfo["errors"]!!.jsonArray.joinToString("\n") {
-                it.jsonObject["message"]!!.jsonPrimitive.content
-            }
-            throw IllegalArgumentException("Failed to fetch commit info:\n${errors}")
+            error("Failed to fetch commit info:\n${errors}")
         }
-        val weeks = commitInfo.byPath(
-            "data",
-            "user",
-            "contributionsCollection",
-            "contributionCalendar",
-            "weeks"
-        )!!.jsonArray
-
+        val weeks = commitInfo.data.user.contributionsCollection.contributionCalendar.weeks
         val days: MutableList<Pair<LocalDate, Int?>> = weeks.flatMap { week ->
-            week.jsonObject["contributionDays"]!!.jsonArray.map { day ->
-                day.jsonObject.let {
-                    LocalDate.parse(it["date"]!!.jsonPrimitive.content) to it["contributionCount"]!!.jsonPrimitive.int
-                }
+            week.contributionDays.map { day ->
+                LocalDate.parse(day.date) to day.contributionCount
             }
         }.toMutableList()
+        // 拆分出到第一个周一之前的零散天数
         run {
-            // 拆分出到第一个周一之前的零散天数
             val first = days.first().first
             val dayOfWeek = first.dayOfWeek.value // 1-7
             repeat(dayOfWeek - 1) {
                 days.add(it, first.minusDays((dayOfWeek - 1 - it).toLong()) to null)
             }
         }
+        return days to commitInfo.data.user
+    }
+
+    suspend fun renderContribution2d(username: String, end: LocalDateTime, theme: Heatmap2dRender.Theme): ByteArray {
+        val (days) = fetchDays(username, end)
 
         // 需要处理跨年的情况
         val first = days.first().first
@@ -96,105 +70,200 @@ class GithubRender(val config: IConfig) {
         }
 
         val max = days.maxOf { it.second ?: 0 }
-        val (_, sr, sg, sb) = theme.bgColor.argb()
-        val (_, er, eg, eb) = theme.titleColor.argb()
-        fun getColor(count: Int): Int {
-            val ratio = count.toFloat() / max
-            val r = (sr + (er - sr) * ratio).toInt()
-            val g = (sg + (eg - sg) * ratio).toInt()
-            val b = (sb + (eb - sb) * ratio).toInt()
-            return argb(255, r, g, b)
-        }
 
-        @UiDsl
-        fun Row.week(week: List<Pair<LocalDate, Int?>>) = column {
-            for ((_, count) in week) {
-                val color = count?.let { getColor(it) } ?: Color.TRANSPARENT
-                box(
-                    Modifier.size(15f)
-                        .background(color)
-                        .border(.5f, if (count == null) Color.TRANSPARENT else theme.textColor)
-                        .clip(Shape.RoundedRect(3f))
-                        .margin(3f)
-                )
+        return Heatmap2dRender.renderCommit(
+            byMonth,
+            max,
+            "$username's GitHub Commit from ${end.minusYears(1).toLocalDate()} to ${end.toLocalDate()}",
+            config.layout2d,
+            theme
+        ).bytes()
+    }
+
+    suspend fun renderContribution3d(
+        username: String,
+        theme: Heatmap3dRender.Theme,
+    ): ByteArray {
+        val user = fetcher.fetchDetail(username, 100) ?: error("cannot find github user $username")
+        val weeks = user.contributionsCollection.contributionCalendar.weeks
+        val days: MutableList<Pair<LocalDate, Int?>> = weeks.flatMap { week ->
+            week.contributionDays.map { day ->
+                LocalDate.parse(day.date) to day.contributionCount
+            }
+        }.toMutableList()
+        // 拆分出到第一个周一之前的零散天数
+        run {
+            val first = days.first().first
+            val dayOfWeek = first.dayOfWeek.value // 1-7
+            repeat(dayOfWeek - 1) {
+                days.add(it, first.minusDays((dayOfWeek - 1 - it).toLong()) to null)
             }
         }
 
-        /**
-         * 一个月的块, 包含了左上角的年月和下方的几周热力图
-         */
-        @UiDsl
-        fun UiElement.months(
-            year: Int,
-            month: Int,
-            byWeek: List<List<Pair<LocalDate, Int?>>>,
-            index: Int
-        ) {
-            // 处理第一个月不满的情况
-            column(horizontalAlignment = if (index == 0) HorizontalAlignment.Right else HorizontalAlignment.Left) {
-                // 小于三周的情况下不显示年月
-                text(
-                    if (byWeek.size >= 3) "${year.toString().substring(2)}.${month.toString().padStart(2, '0')}"
-                    else " ", Modifier
-                        .textColor(theme.textColor)
-                        .fontFamily(layout.textTypeface)
-                        .fontSize(layout.textSize)
-                        .margin(3f, 0f)
-                )
-                row {
-                    for (week in byWeek) week(week)
-                }
+        data class LangInfo(val language: String, val color: String, var contributions: Int) {
+            val skikoColor by lazy {
+                color.replace("#", "ff").toUInt(16).toInt()
             }
         }
 
+        val contributesLanguage = mutableMapOf<String, LangInfo>()
+        user.contributionsCollection.commitContributionsByRepository!!.filter {
+            it.repository.primaryLanguage != null
+        }.forEach { repo ->
+            val language = repo.repository.primaryLanguage?.name ?: "Other"
+            val contributions = repo.contributions.totalCount
+
+            contributesLanguage.getOrPut(language) {
+                LangInfo(
+                    language,
+                    repo.repository.primaryLanguage?.color ?: "#444444",
+                    0
+                )
+            }.contributions += contributions
+        }
+        val start = user.contributionsCollection.contributionCalendar.weeks.first().contributionDays.first().date
+        val end = user.contributionsCollection.contributionCalendar.weeks.last().contributionDays.last().date
+        var languages = contributesLanguage.entries
+            .sortedByDescending { it.value.contributions }
+            .map { it.value }
+        var other = user.contributionsCollection.totalCommitContributions!! - languages.sumOf { it.contributions }
+        // 只保留前五种语言，其他的归为 Other
+        if (languages.size > 5) {
+            val dropList = languages.subList(5, languages.size)
+            other += dropList.sumOf { it.contributions }
+            languages = languages.subList(0, 5)
+        }
+        if (other != 0) {
+            languages = languages + LangInfo("Other", "#444444", other)
+        }
+
+        val heatmap = Heatmap3dRender.render(days, config.layout3d, theme)
+        val w = heatmap.width.toFloat()
+        val h = heatmap.height.toFloat()
         return render {
-            column(Modifier
-                .padding(20f)
-                .background(theme.bgColor)
-                .clip(Shape.RoundedRect(layout.bgRadii))
-                .border(.5f, theme.bolderColor)
-            ) {
-                text(
-                    "$username's GitHub Commit from ${end.minusYears(1).toLocalDate()} to ${end.toLocalDate()}",
-                    Modifier.textColor(theme.titleColor).fontFamily(layout.titleTypeface).fontSize(layout.titleSize)
-                )
-                row(Modifier.margin(top = 20f)) {
-                    // 最左侧星期
-                    val textModifier = Modifier
-                        .textColor(theme.textColor)
-                        .fontFamily(layout.textTypeface)
-                        .fontSize(layout.textSize)
-                    val boxModifier = Modifier.height(16f)
-                    column(Modifier.margin(right = 10f)) {
-                        // 一行字的高度
-                        text(
-                            " ", Modifier
-                                .fontFamily(layout.textTypeface)
-                                .fontSize(layout.textSize)
-                        )
-                        text("Mon", textModifier)
-                        box(boxModifier)
-                        text("Wed", textModifier)
-                        box(boxModifier)
-                        text("Fri", textModifier)
-                        box(boxModifier)
-                        text("Sat", textModifier)
+            val boxModifier = Modifier.size(w, h)
+            box(boxModifier) {
+                box(boxModifier) {
+                    image(heatmap)
+                }
+                box(boxModifier, HorizontalAlignment.Right, VerticalAlignment.Top) {
+                    row(Modifier.margin(20f)) {
+                        text("$username / $start / $end", Modifier.textColor(Colors.GRAY.argb).fontSize(20f))
                     }
-                    // 每月数据
-                    for ((index, e) in byMonth.entries.withIndex()) {
-                        val (yearMonth, byWeek) = e
-                        months(yearMonth.first, yearMonth.second, byWeek, index)
+                }
+                // 左下角饼图
+                box(
+                    boxModifier,
+                    HorizontalAlignment.Left,
+                    VerticalAlignment.Bottom
+                ) {
+                    row(Modifier.margin(bottom = 150f, left = 60f), VerticalAlignment.Center) {
+                        bar(
+                            BarTheme(120f, 60f, strokeColor = theme.background),
+                            languages.map { it.skikoColor to it.contributions.toFloat() }
+                        )
+                        column(Modifier.margin(left = 20f)) {
+                            for (lang in languages) {
+                                row(Modifier.margin(5f), VerticalAlignment.Center) {
+                                    box(Modifier.size(25f).margin(right = 10f).background(lang.skikoColor))
+                                    text(lang.language, Modifier.fontSize(25f).textColor(Color.WHITE))
+                                }
+                            }
+                        }
+                    }
+                }
+                // 右上角雷达图
+                box(
+                    boxModifier,
+                    HorizontalAlignment.Right,
+                    VerticalAlignment.Top
+                ) {
+                    val data = listOf(
+                        "Commit" to user.contributionsCollection.totalCommitContributions,
+                        "Issue" to user.contributionsCollection.totalIssueContributions!!,
+                        "PR" to user.contributionsCollection.totalPullRequestContributions!!,
+                        "Review" to user.contributionsCollection.totalPullRequestReviewContributions!!,
+                        "Repo" to user.contributionsCollection.totalRepositoryContributions!!,
+                    ).map { (name, v) ->
+                        val scaled = if (v == 0) -.1f else log10(v.toDouble()).toFloat()
+                        name to scaled / 4f
+                    }
+                    row(Modifier.margin(40f), VerticalAlignment.Center) {
+                        val radarTheme = RadarTheme(
+                            width = 600f,
+                            height = 600f,
+                            gridCount = 5,
+                            fillColor = 0x77ffc837.toInt(),
+                            fillOutlinePaint = Paint().apply {
+                                color = 0xffffc837.toInt()
+                                strokeWidth = 5f
+                                mode = PaintMode.STROKE
+                                isAntiAlias = true
+                            },
+                            gridLinePaint = Paint().apply {
+                                color = 0xFFCCCCCC.toInt()
+                                strokeWidth = 1f
+                                isAntiAlias = true
+                                mode = PaintMode.STROKE
+                                pathEffect = PathEffect.makeDash(floatArrayOf(5f, 5f), 0f)
+                            },
+                            gridFontColor = 0xFFCCCCCC.toInt(),
+                            gridFontProvider = {
+                                val v = 10.0.pow(it).toInt()
+                                if (v > 100) "${v / 1000}k"
+                                else v.toString()
+                            },
+                            labelOuterLength = 40f,
+                            labelFixPolicy = RadarFixPolicy.NONE,
+                            labelFont = Font(DefaultTypefaceProvider.default, 25f)
+                        )
+                        radar(radarTheme, data)
+                    }
+                }
+                // 正下方
+                box(
+                    boxModifier,
+                    HorizontalAlignment.Center,
+                    VerticalAlignment.Bottom
+                ) {
+                    row(Modifier.margin(50f), VerticalAlignment.Bottom) {
+                        text(
+                            user.contributionsCollection.contributionCalendar.totalContributions.toString(),
+                            Modifier.fontSize(40f)
+                                .textColor(Color.WHITE)
+                                .fontFamily(config.github3d.font.boldTypeface),
+                        )
+                        text(
+                            "contributions",
+                            Modifier.fontSize(30f)
+                                .textColor(Color.WHITE)
+                                .margin(left = 20f, right = 50f)
+                                .fontFamily(config.github3d.font.normalTypeface),
+                        )
+                        row(Modifier.margin(horizontal = 50f), VerticalAlignment.Center) {
+                            icon(IconTheme(40f, color = Color.WHITE), config.github3d.icon.star)
+                            text(
+                                user.repositories!!.nodes.sumOf { it.stargazerCount }.toString(),
+                                Modifier.fontSize(40f)
+                                    .textColor(Color.WHITE)
+                                    .margin(left = 20f, right = 50f)
+                                    .fontFamily(config.github3d.font.normalTypeface),
+                            )
+                        }
+                        row(Modifier.margin(horizontal = 50f), VerticalAlignment.Center) {
+                            icon(IconTheme(40f, color = Color.WHITE), config.github3d.icon.fork)
+                            text(
+                                user.repositories!!.nodes.sumOf { it.forkCount }.toString(),
+                                Modifier.fontSize(40f)
+                                    .textColor(Color.WHITE)
+                                    .margin(left = 20f, right = 30f)
+                                    .fontFamily(config.github3d.font.normalTypeface),
+                            )
+                        }
+
                     }
                 }
             }
-        }.encodeToData()!!.bytes
+        }.bytes()
     }
-}
-
-private fun JsonObject.byPath(vararg path: String): JsonElement? {
-    var current: JsonElement = this
-    for (p in path) {
-        current = current.jsonObject[p] ?: return null
-    }
-    return current
 }

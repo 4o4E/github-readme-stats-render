@@ -1,4 +1,4 @@
-FROM openjdk:11-jre-slim AS jre_source
+FROM openjdk:11.0.11-jre-slim AS jre_source
 # ubuntu 作为基础镜像。
 FROM ubuntu:24.04
 
